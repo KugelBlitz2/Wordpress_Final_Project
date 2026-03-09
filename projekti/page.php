@@ -1,45 +1,38 @@
 <?php
 /**
- * Template for displaying all single pages
+ * The template for displaying all single posts
  *
- * The template file used to render a static page (page post-type).
- * Note that unlike other post-types, page is special to WordPress and uses the following patch:
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
  *
- *      1.  custom template file – The page template assigned to the page. See get_page_templates().
- *      2.  page-{slug}.php – If the page slug is recent-news, WordPress will look to use page-recent-news.php.
- *      3.  page-{id}.php – If the page ID is 6, WordPress will look to use page-6.php.
- *      4.  page.php
- *      5.  singular.php
- *      6.  index.php
- *
- * Please note that this is the WordPress construct of pages
- * and that other 'pages' on your WordPress site will use a
- * different template.
- *
- * Learn more: https://developer.wordpress.org/themes/basics/template-hierarchy/#single-page
- *
- * @package WP_Basic_Bootstrap
- * @since WP_Basic_Bootstrap 1.0
+ * @package WordPress
+ * @subpackage Twenty_Nineteen
+ * @since 1.0.0
  */
 
-$template = get_template_type();
-$page_type = get_page_type();
+get_header();
+?>
 
-if (BASICBOOTSTRAP_TPLDBG) {
-    error_log('loaded file : '.__FILE__);
-    error_log('page type : '.$page_type);
-    error_log('applied template : '.$template);
-}
+	<section id="primary" class="content-area">
+		<main id="main" class="site-main">
 
-get_header_hierarchical('page'); ?>
+			<?php
 
-<div id="content" role="main">
+			/* Start the Loop */
+			while ( have_posts() ) :
+				the_post();
 
-    <?php get_the_breadcrumb(); ?>
+				get_template_part( 'template-parts/content/content', 'page' );
 
-    <?php get_template_part_hierarchical('partials/loop'); ?>
+				// If comments are open or we have at least one comment, load up the comment template.
+				if ( comments_open() || get_comments_number() ) {
+					comments_template();
+				}
 
-</div>
+			endwhile; // End of the loop.
+			?>
 
-<?php get_sidebar_hierarchical('page'); ?>
-<?php get_footer_hierarchical('page'); ?>
+		</main><!-- #main -->
+	</section><!-- #primary -->
+
+<?php
+get_footer();

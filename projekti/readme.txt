@@ -1,28 +1,34 @@
-=== WordPress Basic Bootstrap ===
-Contributors: picas
-Donate link: http://blog.picas.fr/about/
-Requires at least: 4.0.0
-Tested up to: 4.7.0
-Stable tag: trunk
-License: GPLv3 / proprietary
+=== Twenty Nineteen ===
+Contributors: the WordPress team
+Tags: one-column, flexible-header, accessibility-ready, custom-colors, custom-menu, custom-logo, editor-style, featured-images, footer-widgets, rtl-language-support, sticky-post, threaded-comments, translation-ready
+Requires at least: 4.9.6
+Tested up to: WordPress 5.0
+Stable tag: 1.2
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-**WP Basic Bootstrap** is a full "101" [Wordpress](http://wordpress.org/) theme
-built with the [*Bootstrap* framework](http://getbootstrap.com/) and the
-[*Font Awesome* images font](http://fontawesome.io/), which implements all features
-of Wordpress version 4+ and is ready to build a responsive and accessible blog or
-to be modified to build your own theme.
+Our 2019 default theme is designed to show off the power of the block editor.
 
 == Description ==
+Our 2019 default theme is designed to show off the power of the block editor. It features custom styles for all the default blocks, and is built so that what you see in the editor looks like what you'll see on your website. Twenty Nineteen is designed to be adaptable to a wide range of websites, whether you’re running a photo blog, launching a new business, or supporting a non-profit. Featuring ample whitespace and modern sans-serif headlines paired with classic serif body text, it's built to be beautiful on all screen sizes.
 
-Please read the original repository [README](https://github.com/e-picas/wp-basic-bootstrap) for more information.
+== Changelog ==
 
-NOTE - We use *Markdown* files for our documentations. These files are named with an `.md` extension but you can consider
-them as plain text and open them in you favorite text editor (or with `vim`).
+= 1.2 =
+* Released: January 9, 2019
 
-== Frequently asked questions ==
+https://codex.wordpress.org/Twenty_Nineteen_Theme_Changelog#Version_1.2
 
-= Can I disable styles customization? =
+= 1.1 =
+* Released: December 19, 2018
 
-Yes. Just write the following line in your theme/plugin:
+https://codex.wordpress.org/Twenty_Nineteen_Theme_Changelog#Version_1.1
 
-    remove_action('wp_head', array('WP_Basic_Bootstrap_Customizer', 'headerOutput'));
+= 1.0 =
+* Released: December 6, 2018
+
+Initial release
+
+== Resources ==
+* normalize.css, © 2012-2018 Nicolas Gallagher and Jonathan Neal, MIT
+* Underscores, © 2012-2018 Automattic, Inc., GNU GPL v2 or later

@@ -1,54 +1,55 @@
 <?php
 /**
- * Template for displaying Search Results pages
+ * The template for displaying search results pages
  *
- * Search results follow the same pattern as other template types:
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#search-result
  *
- *      1.  search.php
- *      2.  index.php
- *
- * Learn more: https://developer.wordpress.org/themes/basics/template-hierarchy/#search-result
- *
- * @package WP_Basic_Bootstrap
- * @since WP_Basic_Bootstrap 1.0
+ * @package WordPress
+ * @subpackage Twenty_Nineteen
+ * @since 1.0.0
  */
 
-$template = get_template_type();
-$page_type = get_page_type();
+get_header();
+?>
 
-if (BASICBOOTSTRAP_TPLDBG) {
-    error_log('loaded file : '.__FILE__);
-    error_log('page type : '.$page_type);
-    error_log('applied template : '.$template);
-}
+	<section id="primary" class="content-area">
+		<main id="main" class="site-main">
 
-get_header_hierarchical('search'); ?>
+		<?php if ( have_posts() ) : ?>
 
-<div id="content" role="main">
+			<header class="page-header">
+				<h1 class="page-title">
+					<?php _e( 'Search results for:', 'twentynineteen' ); ?>
+				</h1>
+				<div class="page-description"><?php echo get_search_query(); ?></div>
+			</header><!-- .page-header -->
 
-    <?php get_the_breadcrumb(); ?>
+			<?php
+			// Start the Loop.
+			while ( have_posts() ) :
+				the_post();
 
-    <header class="header">
-        <h1 class="entry-title">
-            <?php printf(__('Search results for "%s"', 'basicbootstrap'), '<span>' . get_search_query() . '</span>'); ?>
-        </h1>
-    </header>
-    <hr />
-    <?php if (have_posts()) : ?>
-        <?php get_template_part_hierarchical('partials/loop'); ?>
-    <?php else: ?>
-        <article id="post-0" class="post no-results not-found">
-            <header class="header">
-                <h2 class="entry-title"><?php _e('Nothing Found', 'basicbootstrap'); ?></h2>
-            </header>
-            <section class="entry-content">
-                <p><?php _e('Sorry, nothing matched your search. Please try again.', 'basicbootstrap'); ?></p>
-                <?php get_search_form_hierarchical(); ?>
-            </section>
-        </article>
-    <?php endif; ?>
+				/*
+				 * Include the Post-Format-specific template for the content.
+				 * If you want to override this in a child theme, then include a file
+				 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
+				 */
+				get_template_part( 'template-parts/content/content', 'excerpt' );
 
-</div>
+				// End the loop.
+			endwhile;
 
-<?php get_sidebar_hierarchical('search'); ?>
-<?php get_footer_hierarchical('search'); ?>
+			// Previous/next page navigation.
+			twentynineteen_the_posts_navigation();
+
+			// If no content, include the "No posts found" template.
+		else :
+			get_template_part( 'template-parts/content/content', 'none' );
+
+		endif;
+		?>
+		</main><!-- #main -->
+	</section><!-- #primary -->
+
+<?php
+get_footer();

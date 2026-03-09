@@ -1,58 +1,54 @@
 <?php
 /**
- * Template for displaying Archive pages
+ * The template for displaying archive pages
  *
- * Used to display archive-type pages if nothing more specific matches a query.
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
- * ## Date
- *
- * Date-based archive index pages are rendered as you would expect:
- *
- *      1.  date.php
- *      2.  archive.php
- *      3.  index.php
- *
- * Learn more: https://developer.wordpress.org/themes/basics/template-hierarchy/#date
- *
- * ## Custom Post Types
- *
- * Custom Post Types use the following path to render the appropriate archive index page.
- *
- *      1.  archive-{post_type}.php – If the post type is product, WordPress will look for archive-product.php.
- *      2.  archive.php
- *      3.  index.php
- *
- * Learn more: https://developer.wordpress.org/themes/basics/template-hierarchy/#custom-post-types
- *
- * @package WP_Basic_Bootstrap
- * @since WP_Basic_Bootstrap 1.0
+ * @package WordPress
+ * @subpackage Twenty_Nineteen
+ * @since 1.0.0
  */
 
-$template = get_template_type();
-$page_type = get_page_type();
+get_header();
+?>
 
-if (BASICBOOTSTRAP_TPLDBG) {
-    error_log('loaded file : '.__FILE__);
-    error_log('page type : '.$page_type);
-    error_log('applied template : '.$template);
-}
+	<section id="primary" class="content-area">
+		<main id="main" class="site-main">
 
-get_header_hierarchical('archive'); ?>
+		<?php if ( have_posts() ) : ?>
 
-<div id="content" role="main">
+			<header class="page-header">
+				<?php
+					the_archive_title( '<h1 class="page-title">', '</h1>' );
+				?>
+			</header><!-- .page-header -->
 
-    <?php get_the_breadcrumb(); ?>
+			<?php
+			// Start the Loop.
+			while ( have_posts() ) :
+				the_post();
 
-    <header class="header">
-        <h1 class="entry-title">
-        <?php the_archive_title(); ?>
-        </h1>
-        <?php the_archive_description('<div class="archive-description lead">', '</div>'); ?>
-    </header>
-    <hr />
-    <?php get_template_part_hierarchical('partials/loop'); ?>
+				/*
+				 * Include the Post-Format-specific template for the content.
+				 * If you want to override this in a child theme, then include a file
+				 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
+				 */
+				get_template_part( 'template-parts/content/content', 'excerpt' );
 
-</div>
+				// End the loop.
+			endwhile;
 
-<?php get_sidebar_hierarchical('archive'); ?>
-<?php get_footer_hierarchical('archive'); ?>
+			// Previous/next page navigation.
+			twentynineteen_the_posts_navigation();
+
+			// If no content, include the "No posts found" template.
+		else :
+			get_template_part( 'template-parts/content/content', 'none' );
+
+		endif;
+		?>
+		</main><!-- #main -->
+	</section><!-- #primary -->
+
+<?php
+get_footer();

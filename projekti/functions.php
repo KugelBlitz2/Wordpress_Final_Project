@@ -1,217 +1,323 @@
 <?php
 /**
- * Global theme's functions: setup and general hooks on actions and filters
+ * Twenty Nineteen functions and definitions
  *
- * Any hook to be plugged at each run MUST be written here for clarity. Exceptionally,
- * a library may plug its hooks in its own file if needed.
+ * @link https://developer.wordpress.org/themes/basics/theme-functions/
  *
- * For more information on hooks, actions, and filters,
- * {@link https://codex.wordpress.org/Plugin_API}
- *
- * This file embeds the three dependencies any time:
- *
- * -    `includes/basicbootstrap-config.php` : the global theme's config and core functions
- * -    `includes/templates-enhancer.php` : a library of "missing" Wordpress functions to use
- *      in templates
- * -    `includes/templates-library.php` : the library of theme's features
- *
- * No function is defined here, to see the setup content, have a look at `\WP_Basic_Bootstrap_Setup`.
- *
- * This plugin uses prefix `WP_Basic_Bootsrtap_` for its PHP classes BUT the simpler prefix
- * `basicbootstrap_` for its PHP functions.
- *
- * @link https://codex.wordpress.org/Theme_Development
- * @link https://codex.wordpress.org/Child_Themes
- * @package WP_Basic_Bootstrap
- * @since WP_Basic_Bootstrap 1.0
+ * @package WordPress
+ * @subpackage Twenty_Nineteen
+ * @since 1.0.0
  */
 
-if (!defined('ABSPATH')) {
-    header('HTTP/1.1 403 Forbidden');
-    exit('No script kiddies please!');
+/**
+ * Twenty Nineteen only works in WordPress 4.7 or later.
+ */
+if ( version_compare( $GLOBALS['wp_version'], '4.7', '<' ) ) {
+	require get_template_directory() . '/inc/back-compat.php';
+	return;
 }
 
-/**
- * Current plugin version
- */
-define('BASICBOOTSTRAP_VERSION', '1.1.0@dev');
+if ( ! function_exists( 'twentynineteen_setup' ) ) :
+	/**
+	 * Sets up theme defaults and registers support for various WordPress features.
+	 *
+	 * Note that this function is hooked into the after_setup_theme hook, which
+	 * runs before the init hook. The init hook is too late for some features, such
+	 * as indicating support for post thumbnails.
+	 */
+	function twentynineteen_setup() {
+		/*
+		 * Make theme available for translation.
+		 * Translations can be filed in the /languages/ directory.
+		 * If you're building a theme based on Twenty Nineteen, use a find and replace
+		 * to change 'twentynineteen' to the name of your theme in all the template files.
+		 */
+		load_theme_textdomain( 'twentynineteen', get_template_directory() . '/languages' );
+
+		// Add default posts and comments RSS feed links to head.
+		add_theme_support( 'automatic-feed-links' );
+
+		/*
+		 * Let WordPress manage the document title.
+		 * By adding theme support, we declare that this theme does not use a
+		 * hard-coded <title> tag in the document head, and expect WordPress to
+		 * provide it for us.
+		 */
+		add_theme_support( 'title-tag' );
+
+		/*
+		 * Enable support for Post Thumbnails on posts and pages.
+		 *
+		 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
+		 */
+		add_theme_support( 'post-thumbnails' );
+		set_post_thumbnail_size( 1568, 9999 );
+
+		// This theme uses wp_nav_menu() in two locations.
+		register_nav_menus(
+			array(
+				'menu-1' => __( 'Primary', 'twentynineteen' ),
+				'footer' => __( 'Footer Menu', 'twentynineteen' ),
+				'social' => __( 'Social Links Menu', 'twentynineteen' ),
+			)
+		);
+
+		/*
+		 * Switch default core markup for search form, comment form, and comments
+		 * to output valid HTML5.
+		 */
+		add_theme_support(
+			'html5',
+			array(
+				'search-form',
+				'comment-form',
+				'comment-list',
+				'gallery',
+				'caption',
+			)
+		);
+
+		/**
+		 * Add support for core custom logo.
+		 *
+		 * @link https://codex.wordpress.org/Theme_Logo
+		 */
+		add_theme_support(
+			'custom-logo',
+			array(
+				'height'      => 190,
+				'width'       => 190,
+				'flex-width'  => false,
+				'flex-height' => false,
+			)
+		);
+
+		// Add theme support for selective refresh for widgets.
+		add_theme_support( 'customize-selective-refresh-widgets' );
+
+		// Add support for Block Styles.
+		add_theme_support( 'wp-block-styles' );
+
+		// Add support for full and wide align images.
+		add_theme_support( 'align-wide' );
+
+		// Add support for editor styles.
+		add_theme_support( 'editor-styles' );
+
+		// Enqueue editor styles.
+		add_editor_style( 'style-editor.css' );
+
+		// Add custom editor font sizes.
+		add_theme_support(
+			'editor-font-sizes',
+			array(
+				array(
+					'name'      => __( 'Small', 'twentynineteen' ),
+					'shortName' => __( 'S', 'twentynineteen' ),
+					'size'      => 19.5,
+					'slug'      => 'small',
+				),
+				array(
+					'name'      => __( 'Normal', 'twentynineteen' ),
+					'shortName' => __( 'M', 'twentynineteen' ),
+					'size'      => 22,
+					'slug'      => 'normal',
+				),
+				array(
+					'name'      => __( 'Large', 'twentynineteen' ),
+					'shortName' => __( 'L', 'twentynineteen' ),
+					'size'      => 36.5,
+					'slug'      => 'large',
+				),
+				array(
+					'name'      => __( 'Huge', 'twentynineteen' ),
+					'shortName' => __( 'XL', 'twentynineteen' ),
+					'size'      => 49.5,
+					'slug'      => 'huge',
+				),
+			)
+		);
+
+		// Editor color palette.
+		add_theme_support(
+			'editor-color-palette',
+			array(
+				array(
+					'name'  => __( 'Primary', 'twentynineteen' ),
+					'slug'  => 'primary',
+					'color' => twentynineteen_hsl_hex( 'default' === get_theme_mod( 'primary_color' ) ? 199 : get_theme_mod( 'primary_color_hue', 199 ), 100, 33 ),
+				),
+				array(
+					'name'  => __( 'Secondary', 'twentynineteen' ),
+					'slug'  => 'secondary',
+					'color' => twentynineteen_hsl_hex( 'default' === get_theme_mod( 'primary_color' ) ? 199 : get_theme_mod( 'primary_color_hue', 199 ), 100, 23 ),
+				),
+				array(
+					'name'  => __( 'Dark Gray', 'twentynineteen' ),
+					'slug'  => 'dark-gray',
+					'color' => '#111',
+				),
+				array(
+					'name'  => __( 'Light Gray', 'twentynineteen' ),
+					'slug'  => 'light-gray',
+					'color' => '#767676',
+				),
+				array(
+					'name'  => __( 'White', 'twentynineteen' ),
+					'slug'  => 'white',
+					'color' => '#FFF',
+				),
+			)
+		);
+
+		// Add support for responsive embedded content.
+		add_theme_support( 'responsive-embeds' );
+	}
+endif;
+add_action( 'after_setup_theme', 'twentynineteen_setup' );
 
 /**
- * Current local plugin root path
- */
-define('BASICBOOTSTRAP_BASEPATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
-
-/**
- * DEBUG FLAG : enable this to log all loaded templates of the theme
+ * Register widget area.
  *
- * This will make an `error_log(__FILE__)` at the top of any template of this theme
- * to trace final rendering stack.
+ * @link https://developer.wordpress.org/themes/functionality/sidebars/#registering-a-sidebar
  */
-/*/
-define('BASICBOOTSTRAP_TPLDBG', true);
-//*/
+function twentynineteen_widgets_init() {
+
+	register_sidebar(
+		array(
+			'name'          => __( 'Footer', 'twentynineteen' ),
+			'id'            => 'sidebar-1',
+			'description'   => __( 'Add widgets here to appear in your footer.', 'twentynineteen' ),
+			'before_widget' => '<section id="%1$s" class="widget %2$s">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2 class="widget-title">',
+			'after_title'   => '</h2>',
+		)
+	);
+
+}
+add_action( 'widgets_init', 'twentynineteen_widgets_init' );
 
 /**
- * ASSETS FLAG : set this to 'bower' to use the distributed Bower versions of assets
+ * Set the content width in pixels, based on the theme's design and stylesheet.
  *
- * Flag values:
+ * Priority 0 to make it available to lower priority callbacks.
  *
- *      -   'internal' : this will select assets files of dependencies in common theme's directories
- *      -   'bower' : this will select assets files of dependencies directly in the directories created by Bower
+ * @global int $content_width Content width.
  */
-define('BASICBOOTSTRAP_ASSETS_MODE', 'internal');
-
-/*/
-// HARD DEBUG OF THEME MODS
-header('Content-Type: text/plain');
-var_export(get_theme_mods());
-//remove_theme_mods(); echo '>> THEME MODS DELETED!';
-exit();
-//*/
+function twentynineteen_content_width() {
+	// This variable is intended to be overruled from themes.
+	// Open WPCS issue: {@link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/issues/1043}.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+	$GLOBALS['content_width'] = apply_filters( 'twentynineteen_content_width', 640 );
+}
+add_action( 'after_setup_theme', 'twentynineteen_content_width', 0 );
 
 /**
- * Include the global config (required)
+ * Enqueue scripts and styles.
  */
-require_once BASICBOOTSTRAP_BASEPATH . 'includes/basicbootstrap.php';
+function twentynineteen_scripts() {
+	wp_enqueue_style( 'twentynineteen-style', get_stylesheet_uri(), array(), wp_get_theme()->get( 'Version' ) );
 
-/*/
-// the functions for debugging ...
-basicbootstrap_load_library('dev-lib');
-//*/
+	wp_style_add_data( 'twentynineteen-style', 'rtl', 'replace' );
+
+	if ( has_nav_menu( 'menu-1' ) ) {
+		wp_enqueue_script( 'twentynineteen-priority-menu', get_theme_file_uri( '/js/priority-menu.js' ), array(), '1.1', true );
+		wp_enqueue_script( 'twentynineteen-touch-navigation', get_theme_file_uri( '/js/touch-keyboard-navigation.js' ), array(), '1.1', true );
+	}
+
+	wp_enqueue_style( 'twentynineteen-print-style', get_template_directory_uri() . '/print.css', array(), wp_get_theme()->get( 'Version' ), 'print' );
+
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+		wp_enqueue_script( 'comment-reply' );
+	}
+}
+add_action( 'wp_enqueue_scripts', 'twentynineteen_scripts' );
 
 /**
- * Load the setup class (required)
- */
-basicbootstrap_load_class('WP_Basic_Bootstrap_Setup');
-
-/**
- * Initialize the theme
- */
-WP_Basic_Bootstrap_Setup::init();
-
-/**
- * Set up theme defaults and registers support for various WordPress features.
+ * Fix skip link focus in IE11.
  *
- * @uses WP_Basic_Bootstrap_Setup::setupCommon()
- * @uses WP_Basic_Bootstrap_Setup::setupBackend()
- * @uses WP_Basic_Bootstrap_Setup::setupFrontend()
+ * This does not enqueue the script because it is tiny and because it is only for IE11,
+ * thus it does not warrant having an entire dedicated blocking script being loaded.
+ *
+ * @link https://git.io/vWdr2
  */
-add_action('after_setup_theme', function () {
-    WP_Basic_Bootstrap_Setup::setupCommon();
-    if (is_admin()) {
-        WP_Basic_Bootstrap_Setup::setupBackend();
-    } else {
-        WP_Basic_Bootstrap_Setup::setupFrontend();
-    }
-});
+function twentynineteen_skip_link_focus_fix() {
+	// The following is minified via `terser --compress --mangle -- js/skip-link-focus-fix.js`.
+	?>
+	<script>
+	/(trident|msie)/i.test(navigator.userAgent)&&document.getElementById&&window.addEventListener&&window.addEventListener("hashchange",function(){var t,e=location.hash.substring(1);/^[A-z0-9_-]+$/.test(e)&&(t=document.getElementById(e))&&(/^(?:a|select|input|button|textarea)$/i.test(t.tagName)||(t.tabIndex=-1),t.focus())},!1);
+	</script>
+	<?php
+}
+add_action( 'wp_print_footer_scripts', 'twentynineteen_skip_link_focus_fix' );
 
 /**
- * Enqueue scripts and styles for front-end.
- *
- * @uses WP_Basic_Bootstrap_Setup::enqueueScriptsFrontend()
+ * Enqueue supplemental block editor styles.
  */
-add_action('wp_enqueue_scripts', array('WP_Basic_Bootstrap_Setup', 'enqueueScriptsFrontend'));
+function twentynineteen_editor_customizer_styles() {
+
+	wp_enqueue_style( 'twentynineteen-editor-customizer-styles', get_theme_file_uri( '/style-editor-customizer.css' ), false, '1.1', 'all' );
+
+	if ( 'custom' === get_theme_mod( 'primary_color' ) ) {
+		// Include color patterns.
+		require_once get_parent_theme_file_path( '/inc/color-patterns.php' );
+		wp_add_inline_style( 'twentynineteen-editor-customizer-styles', twentynineteen_custom_colors_css() );
+	}
+}
+add_action( 'enqueue_block_editor_assets', 'twentynineteen_editor_customizer_styles' );
 
 /**
- * Enqueue scripts and styles for back-end.
- *
- * @uses WP_Basic_Bootstrap_Setup::enqueueScriptsBackend()
+ * Display custom color CSS in customizer and on frontend.
  */
-add_action('admin_enqueue_scripts', array('WP_Basic_Bootstrap_Setup', 'enqueueScriptsBackend'));
+function twentynineteen_colors_css_wrap() {
+
+	// Only include custom colors in customizer or frontend.
+	if ( ( ! is_customize_preview() && 'default' === get_theme_mod( 'primary_color', 'default' ) ) || is_admin() ) {
+		return;
+	}
+
+	require_once get_parent_theme_file_path( '/inc/color-patterns.php' );
+
+	$primary_color = 199;
+	if ( 'default' !== get_theme_mod( 'primary_color', 'default' ) ) {
+		$primary_color = get_theme_mod( 'primary_color_hue', 199 );
+	}
+	?>
+
+	<style type="text/css" id="custom-theme-colors" <?php echo is_customize_preview() ? 'data-hue="' . absint( $primary_color ) . '"' : ''; ?>>
+		<?php echo twentynineteen_custom_colors_css(); ?>
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'twentynineteen_colors_css_wrap' );
 
 /**
- * Register widgetized areas, including main sidebar and three widget-ready columns in the footer.
- *
- * @uses WP_Basic_Bootstrap_Setup::widgetsInit()
+ * SVG Icons class.
  */
-add_action('widgets_init', array('WP_Basic_Bootstrap_Setup', 'widgetsInit'));
+require get_template_directory() . '/classes/class-twentynineteen-svg-icons.php';
 
 /**
- * Register theme customizer
- *
- * @uses WP_Basic_Bootstrap_Customizer::register()
- * @uses WP_Basic_Bootstrap_Customizer::livePreview()
- * @uses WP_Basic_Bootstrap_Customizer::headerOutput()
+ * Custom Comment Walker template.
  */
-basicbootstrap_load_class('WP_Basic_Bootstrap_Customizer');
-add_action('customize_register', array('WP_Basic_Bootstrap_Customizer', 'register'));
-add_action('customize_preview_init', array('WP_Basic_Bootstrap_Customizer', 'livePreview'));
-add_action('wp_head', array('WP_Basic_Bootstrap_Customizer', 'headerOutput'));
+require get_template_directory() . '/classes/class-twentynineteen-walker-comment.php';
 
 /**
- * New 403 & 401 error pages micro-plugin
- *
- * The `wp_title` filter is documented in `wp-includes/general-template.php`.
- * The `body_class` filter is documented in `wp-includes/post-template.php`.
- *
- * @uses basicbootstrap_error_pages()
- * @uses basicbootstrap_error_title()
- * @uses basicbootstrap_error_class()
+ * Enhance the theme by hooking into WordPress.
  */
-basicbootstrap_load_library('error-pages');
-add_action('wp', 'basicbootstrap_error_pages');
-add_filter('wp_title', 'basicbootstrap_error_title', 100, 2);
-add_filter('body_class', 'basicbootstrap_error_class');
+require get_template_directory() . '/inc/template-functions.php';
 
 /**
- * Manage global redirections
- *
- * @uses basicbootstrap_template_redirect()
+ * SVG Icons related functions.
  */
-add_action('template_redirect', 'basicbootstrap_template_redirect', 1);
+require get_template_directory() . '/inc/icon-functions.php';
 
 /**
- * Define the excerpts length
- *
- * The `excerpt_length` filter is documented in `wp-includes/formatting.php`.
- *
- * @uses basicbootstrap_excerpt_length()
+ * Custom template tags for the theme.
  */
-add_filter('excerpt_length', 'basicbootstrap_excerpt_length');
+require get_template_directory() . '/inc/template-tags.php';
 
 /**
- * Get the post excerpt adding the "read more" tag if enabled and needed
- *
- * The `wp_trim_excerpt` filter is documented in `wp-includes/formatting.php`.
- *
- * @uses basicbootstrap_excerpt()
+ * Customizer additions.
  */
-add_filter('wp_trim_excerpt', 'basicbootstrap_excerpt');
-
-/**
- * Replaces the default "more" links
- *
- * The `excerpt_more` filter is documented in `wp-includes/formatting.php`.
- * The `the_content_more_link` filter is documented in `wp-includes/post-template.php`.
- *
- * @uses basicbootstrap_read_more_link()
- */
-add_filter('excerpt_more', 'basicbootstrap_read_more_link');
-add_filter('the_content_more_link', 'basicbootstrap_read_more_link');
-
-/**
- * Process shortcodes in excerpt
- *
- * The `the_excerpt` filter is documented in `wp-includes/post-template.php`.
- */
-add_filter('the_excerpt', 'do_shortcode');
-
-/**
- * Include the custom user CSS in header if so
- */
-add_action('wp_head', 'basicbootstrap_include_custom_css_code');
-
-/**
- * Use a customized password form for protected posts
- */
-add_filter('the_password_form', 'basicbootstrap_get_the_password_form');
-
-/**
- * Do not add 'protected: ' behind post title when thay are protected
- */
-add_filter('protected_title_format', 'basicbootstrap_get_default_password_post_title', 10, 2);
-
-/**
- * Filter the comments popup link attributes for display.
- */
-add_filter('comments_popup_link_attributes', 'basicbootstrap_comments_popup_link_attributes');
+require get_template_directory() . '/inc/customizer.php';

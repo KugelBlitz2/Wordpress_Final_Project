@@ -1,162 +1,128 @@
 <?php
 /**
- * The template for displaying Comments
+ * The template for displaying comments
  *
- * This is a partial template that is pulled into other template files to display comments
- * that users leave on a page or post. Several different pages and posts show comments so
- * it makes sense to have one file that can be pulled in when needed.
+ * This is the template that displays the area of the page that contains both the current comments
+ * and the comment form.
  *
- * Learn more: https://developer.wordpress.org/themes/template-files-section/partial-and-miscellaneous-template-files/#comments-php
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
- * @package WP_Basic_Bootstrap
- * @since WP_Basic_Bootstrap 1.0
+ * @package WordPress
+ * @subpackage Twenty_Nineteen
+ * @since 1.0.0
  */
 
 /*
- * If the current post is protected by a password and the visitor has not yet
- * entered the password we will return early without loading the comments.
- */
-if (post_password_required()) {
-    return;
+ * If the current post is protected by a password and
+ * the visitor has not yet entered the password we will
+ * return early without loading the comments.
+*/
+if ( post_password_required() ) {
+	return;
 }
 
-/*
- * If this file is called directly, fuck
- */
-if ('comments.php' == basename($_SERVER['SCRIPT_FILENAME'])) {
-    return;
-}
-
+$discussion = twentynineteen_get_discussion_data();
 ?>
-<?php if (comments_open()) : ?>
-    <hr />
-    <section id="comments" class="comments-area">
 
-        <?php if (have_comments()) : ?>
-            <meta itemprop="interactionCount" content="<?php echo get_comments_number(); ?> Usercomments">
+<div id="comments" class="<?php echo comments_open() ? 'comments-area' : 'comments-area comments-closed'; ?>">
+	<div class="<?php echo $discussion->responses > 0 ? 'comments-title-wrap' : 'comments-title-wrap no-responses'; ?>">
+		<h2 class="comments-title">
+		<?php
+		if ( comments_open() ) {
+			if ( have_comments() ) {
+				_e( 'Join the Conversation', 'twentynineteen' );
+			} else {
+				_e( 'Leave a comment', 'twentynineteen' );
+			}
+		} else {
+			if ( '1' == $discussion->responses ) {
+				/* translators: %s: post title */
+				printf( _x( 'One reply on &ldquo;%s&rdquo;', 'comments title', 'twentynineteen' ), get_the_title() );
+			} else {
+				printf(
+					/* translators: 1: number of comments, 2: post title */
+					_nx(
+						'%1$s reply on &ldquo;%2$s&rdquo;',
+						'%1$s replies on &ldquo;%2$s&rdquo;',
+						$discussion->responses,
+						'comments title',
+						'twentynineteen'
+					),
+					number_format_i18n( $discussion->responses ),
+					get_the_title()
+				);
+			}
+		}
+		?>
+		</h2><!-- .comments-title -->
+		<?php
+			// Only show discussion meta information when comments are open and available.
+		if ( have_comments() && comments_open() ) {
+			get_template_part( 'template-parts/post/discussion', 'meta' );
+		}
+		?>
+	</div><!-- .comments-title-flex -->
+	<?php
+	if ( have_comments() ) :
 
-            <h3 class="comments-title">
-                <?php
-                /* translation: <x> thought(s) about <article> */
-                printf(
-                    _n(
-                        __('One thought on &ldquo;%2$s&rdquo;', 'basicbootstrap'),
-                        __('%1$s thoughts on &ldquo;%2$s&rdquo;', 'basicbootstrap'),
-                        get_comments_number(),
-                        'basicbootstrap'
-                    ),
-                    number_format_i18n(get_comments_number()),
-                    get_the_title()
-                );
-                ?>
-            </h3>
+		// Show comment form at top if showing newest comments at the top.
+		if ( comments_open() ) {
+			twentynineteen_comment_form( 'desc' );
+		}
 
-            <?php
-            /*
-            if ( get_comment_pages_count() > 1 && get_option('page_comments') ) : ?>
-                <nav id="comment-nav-above">
-                    <ul class="pager">
-                        <h1 class="sr-only"><?php _e('Comment navigation', 'basicbootstrap'); ?></h1>
-                        <li><?php previous_comments_link( __('&larr; Older Comments', 'basicbootstrap') ); ?></li>
-                        <li><?php next_comments_link( __('Newer Comments &rarr;', 'basicbootstrap') ); ?></li>
-                    </ul>
-                </nav><!-- #comment-nav-above -->
-            <?php endif; // Check for comment navigation.
-            */
-            ?>
+		?>
+		<ol class="comment-list">
+			<?php
+			wp_list_comments(
+				array(
+					'walker'      => new TwentyNineteen_Walker_Comment(),
+					'avatar_size' => twentynineteen_get_avatar_size(),
+					'short_ping'  => true,
+					'style'       => 'ol',
+				)
+			);
+			?>
+		</ol><!-- .comment-list -->
+		<?php
 
-            <ul class="list-unstyled">
-                <?php wp_list_comments(array(
-                    'callback' => 'basicbootstrap_comment',
-                    'style' => 'ul'
-                )); ?>
-            </ul><!-- .comment-list -->
+		// Show comment navigation
+		if ( have_comments() ) :
+			$prev_icon     = twentynineteen_get_icon_svg( 'chevron_left', 22 );
+			$next_icon     = twentynineteen_get_icon_svg( 'chevron_right', 22 );
+			$comments_text = __( 'Comments', 'twentynineteen' );
+			the_comments_navigation(
+				array(
+					'prev_text' => sprintf( '%s <span class="nav-prev-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span>', $prev_icon, __( 'Previous', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ) ),
+					'next_text' => sprintf( '<span class="nav-next-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span> %s', __( 'Next', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ), $next_icon ),
+				)
+			);
+		endif;
 
-            <?php if (get_comment_pages_count() > 1 && get_option('page_comments')) : ?>
-                <nav id="comment-nav-below">
-                    <ul class="pager">
-                        <h1 class="sr-only"><?php _e('Comment navigation', 'basicbootstrap'); ?></h1>
-                        <li><?php previous_comments_link(__('&larr; Older Comments', 'basicbootstrap')); ?></li>
-                        <li><?php next_comments_link(__('Newer Comments &rarr;', 'basicbootstrap')); ?></li>
-                    </ul>
-                </nav><!-- #comment-nav-below -->
-            <?php endif; // Check for comment navigation. ?>
+		// Show comment form at bottom if showing newest comments at the bottom.
+		if ( comments_open() && 'asc' === strtolower( get_option( 'comment_order', 'asc' ) ) ) :
+			?>
+			<div class="comment-form-flex">
+				<span class="screen-reader-text"><?php _e( 'Leave a comment', 'twentynineteen' ); ?></span>
+				<?php twentynineteen_comment_form( 'asc' ); ?>
+				<h2 class="comments-title" aria-hidden="true"><?php _e( 'Leave a comment', 'twentynineteen' ); ?></h2>
+			</div>
+			<?php
+		endif;
 
-            <?php if (! comments_open()) : ?>
-                <p class="no-comments"><?php _e('Comments are closed.', 'basicbootstrap'); ?></p>
-            <?php endif; ?>
+		// If comments are closed and there are comments, let's leave a little note, shall we?
+		if ( ! comments_open() ) :
+			?>
+			<p class="no-comments">
+				<?php _e( 'Comments are closed.', 'twentynineteen' ); ?>
+			</p>
+			<?php
+		endif;
 
-        <?php endif; // have_comments() ?>
+	else :
 
-        <div class="hidden-print">
-        <?php
-        $args = array(
-            'id_form'           => 'commentform',
-            'id_submit'         => 'submit',
-            'class_submit'      => 'btn btn-default',
-            'title_reply'       => __('Leave a Reply', 'basicbootstrap'),
-            'title_reply_to'    => __('Leave a Reply to %s', 'basicbootstrap'),
-            'cancel_reply_link' => __('Cancel Reply', 'basicbootstrap'),
-            'label_submit'      => __('Post Comment', 'basicbootstrap'),
+		// Show comment form.
+		twentynineteen_comment_form( true );
 
-            'comment_field' =>  '<div class="form-group comment-form-comment">' .
-                '<label for="comment" class="control-label">' .
-                    _x('Comment', 'noun', 'basicbootstrap') .
-                '</label>' .
-                '<textarea class="form-control" id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea>' .
-            '</div>',
-
-            'must_log_in' => '<p class="must-log-in">' .
-                sprintf(
-                    __('You must be <a href="%s">logged in</a> to post a comment.', 'basicbootstrap'),
-                    wp_login_url(apply_filters('the_permalink', get_permalink()))
-                ) . '</p>',
-
-            'logged_in_as' => '<p class="logged-in-as">' .
-                sprintf(
-                    __('Logged in as <a href="%1$s">%2$s</a>. <a href="%3$s" title="Log out of this account">Log out?</a>', 'basicbootstrap'),
-                    admin_url('profile.php'),
-                    $user_identity,
-                    wp_logout_url(apply_filters('the_permalink', get_permalink()))
-                ) . '</p>',
-
-            'comment_notes_before' => '<p class="comment-notes">' .
-                __('Your email address will not be published.', 'basicbootstrap') .
-                '</p>',
-
-            'comment_notes_after' => '<p class="form-allowed-tags">' .
-                sprintf(
-                    __('You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes: %s', 'basicbootstrap'),
-                    ' <code>' . allowed_tags() . '</code>'
-                ) . '.</p>',
-
-            'fields' => apply_filters('comment_form_default_fields', array(
-                'author' =>
-                    '<div class="form-group comment-form-name">' .
-                        '<label for="author" class="control-label">' .
-                            __('Name', 'basicbootstrap') . ($req ? '&nbsp;<span class="required">*</span>' : '') .
-                        '</label> ' .
-                        '<input class="form-control" id="author" name="author" type="text" value="' . esc_attr($commenter['comment_author']) . '" placeholder="John Doe" />' .
-                    '</div>',
-                'email' =>
-                    '<div class="form-group comment-form-email">' .
-                        '<label for="email" class="control-label">' .
-                            __('Email', 'basicbootstrap') . ($req ? '&nbsp;<span class="required">*</span>' : '') .
-                        '</label> ' .
-                        '<input class="form-control" id="email" name="email" type="text" value="' . esc_attr($commenter['comment_author']) . '" placeholder="name@provider.dom" />' .
-                    '</div>',
-                'url' =>
-                    '<div class="form-group comment-form-url">' .
-                        '<label for="url" class="control-label">' .
-                            __('Website', 'basicbootstrap') .
-                        '</label> ' .
-                        '<input class="form-control" id="url" name="url" type="text" value="' . esc_attr($commenter['comment_author']) . '" placeholder="http://domain.ext/page" />' .
-                    '</div>',
-            )),
-        );
-        comment_form($args);
-        ?>
-        </div>
-
-    </section><!-- #comments -->
-<?php endif; ?>
+	endif; // if have_comments();
+	?>
+</div><!-- #comments -->
